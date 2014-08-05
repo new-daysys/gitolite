@@ -1,0 +1,27 @@
+#!/usr/bin/perl
+
+use common::sense;
+
+use lib $ENV{GL_LIBDIR};
+use Gitolite::Easy;
+use Encode::Locale;
+
+local $ENV{LC_ALL} ||= $ENV{LC_CTYPE} || $ENV{LANG} || 'en_US.UTF-8';
+binmode STDIN, ":encoding(console_in)";
+binmode STDOUT, ":encoding(console_out)";
+binmode STDERR, ":encoding(console_out)";
+
+=for usage
+Usage:  ssh git@host ppqa-bugstat <repo> bugstat
+
+repots bug statistics using git-log(1) --numstat.
+
+=cut
+
+usage() if not @ARGV or @ARGV < 1 or $ARGV[0] eq '-h';
+
+my $repo = shift;
+_die "you are not authorized" unless can_read($repo);
+
+system('git', '--git-dir', "$rc{GL_REPO_BASE}/$repo.git",
+       qw(ppqa-bugstat), @ARGV);
